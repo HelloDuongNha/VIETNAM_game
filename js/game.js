@@ -149,6 +149,7 @@ function setupControls() {
     
     // Restart button
     document.getElementById('restartBtn').addEventListener('click', () => {
+        hideGameOver();
         location.reload();
     });
 }
@@ -1132,4 +1133,14 @@ function createExplosionEffect(position) {
             scene.remove(light);
         }
     }, 50);
+}
+
+function showGameOver() {
+    document.getElementById('gameOver').style.display = 'block';
+    document.getElementById('gameContainer').classList.add('game-over-active');
+}
+
+function hideGameOver() {
+    document.getElementById('gameOver').style.display = 'none';
+    document.getElementById('gameContainer').classList.remove('game-over-active');
 } 
