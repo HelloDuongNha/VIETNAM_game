@@ -9,7 +9,7 @@ let gameState = {
     lastSoldierSpawn: 0,
     lastVietnameseSoldierSpawn: 0,
     soldierSpawnInterval: 1000, // Time between soldier spawns in milliseconds
-    vietnameseSoldierSpawnInterval: 500, // Time between Vietnamese soldier spawns
+    vietnameseSoldierSpawnInterval: 1000, // Time between Vietnamese soldier spawns
     vietnameseSoldierKills: 0 // Track kills for each Vietnamese soldier
 };
 
@@ -22,6 +22,142 @@ const keys = {
 
 // Add joystick instance
 let joystick;
+
+// Sound variables
+let backgroundMusic, loseSound, victorySound, movingSound;
+let isMoving = false;
+let audioContext;
+let soundsLoaded = false;
+
+// Initialize audio context
+function initAudio() {
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        console.log('Audio context initialized');
+    } catch (error) {
+        console.error('Error initializing audio context:', error);
+    }
+}
+
+// Load and play sound
+function loadAndPlaySound(url, loop = false, volume = 1.0) {
+    return new Promise((resolve, reject) => {
+        fetch(url)
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+                const source = audioContext.createBufferSource();
+                const gainNode = audioContext.createGain();
+                
+                source.buffer = audioBuffer;
+                source.loop = loop;
+                gainNode.gain.value = volume;
+                
+                source.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                source.start(0);
+                console.log('Sound loaded and playing:', url);
+                
+                resolve(source);
+            })
+            .catch(error => {
+                console.error('Error loading sound:', url, error);
+                reject(error);
+            });
+    });
+}
+
+// Load all sounds
+async function loadSounds() {
+    try {
+        // Background music
+        backgroundMusic = await loadAndPlaySound('asset/sounds/background.ogg', true, 0.3);
+        
+        // Lose sound
+        loseSound = await loadAndPlaySound('asset/sounds/Lose.ogg', false, 0.5);
+        loseSound.stop();
+        
+        // Victory sound
+        victorySound = await loadAndPlaySound('asset/sounds/Victory.ogg', false, 0.5);
+        victorySound.stop();
+        
+        // Moving sound
+        movingSound = await loadAndPlaySound('asset/sounds/moving.ogg', true, 0.2);
+        movingSound.stop();
+        
+        soundsLoaded = true;
+        console.log('All sounds loaded successfully');
+    } catch (error) {
+        console.error('Error loading sounds:', error);
+    }
+}
+
+// Play background music
+function playBackgroundMusic() {
+    if (backgroundMusic && !backgroundMusic.isPlaying) {
+        try {
+            backgroundMusic.start(0);
+            console.log('Background music started playing');
+        } catch (error) {
+            console.error('Error playing background music:', error);
+        }
+    }
+}
+
+// Play lose sound
+function playLoseSound() {
+    if (loseSound) {
+        try {
+            if (backgroundMusic) {
+                backgroundMusic.stop();
+            }
+            loseSound.start(0);
+            console.log('Lose sound played');
+        } catch (error) {
+            console.error('Error playing lose sound:', error);
+        }
+    }
+}
+
+// Play victory sound
+function playVictorySound() {
+    if (victorySound) {
+        try {
+            if (backgroundMusic) {
+                backgroundMusic.stop();
+            }
+            victorySound.start(0);
+            console.log('Victory sound played');
+        } catch (error) {
+            console.error('Error playing victory sound:', error);
+        }
+    }
+}
+
+// Play moving sound
+function playMovingSound() {
+    if (movingSound && !movingSound.isPlaying) {
+        try {
+            movingSound.start(0);
+            console.log('Moving sound started playing');
+        } catch (error) {
+            console.error('Error playing moving sound:', error);
+        }
+    }
+}
+
+// Stop moving sound
+function stopMovingSound() {
+    if (movingSound && movingSound.isPlaying) {
+        try {
+            movingSound.stop();
+            console.log('Moving sound stopped');
+        } catch (error) {
+            console.error('Error stopping moving sound:', error);
+        }
+    }
+}
 
 // Initialize the game
 function init() {
@@ -63,7 +199,7 @@ function init() {
     createEnhancedTank();
     
     // Create flag
-    createFlag();
+    // createFlag();
     
     // Initialize particle systems
     initParticles();
@@ -119,6 +255,17 @@ function init() {
     
     // Start game loop
     animate();
+    
+    initAudio();
+    loadSounds();
+    
+    // Add click event listener to start audio context
+    document.addEventListener('click', function startAudio() {
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        document.removeEventListener('click', startAudio);
+    }, { once: true });
 }
 
 function setupControls() {
@@ -422,7 +569,7 @@ function checkCollisions() {
     });
     
     // Check victory condition
-    if (Math.abs(tank.position.z - (-130)) < 1 && tank.position.x >= -5 && tank.position.x <= 5) {
+    if (Math.abs(tank.position.z - (-135)) < 1 && tank.position.x >= -12 && tank.position.x <= 12) {
         endGame(true);
     }
     
