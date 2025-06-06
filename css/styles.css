@@ -91,13 +91,13 @@ canvas {
 
 #minimap {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 200px;
-    height: 150px;
+    bottom: 160px;
+    right: 5px;
+    width: 120px;
+    height: 90px;
     background: rgba(0,0,0,0.8);
     border: 3px solid #fff;
-    border-radius: 15px;
+    border-radius: 10px;
     z-index: 100;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
@@ -126,4 +126,236 @@ canvas {
     background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
     transition: width 0.3s ease;
     border-radius: 4px;
+}
+
+/* Mobile Controls */
+#joystickContainer {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 120px;
+    height: 120px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    display: none;
+    z-index: 1000;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    touch-action: none;
+    /* Add visual indicator for touch area */
+    background-image: 
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%),
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+}
+
+#joystickHandle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    touch-action: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    /* Add visual feedback */
+    background-image: 
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    /* Add subtle animation */
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+}
+
+/* Add touch feedback styles */
+#joystickContainer:active,
+#joystickContainer.touching {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+#joystickHandle:active,
+#joystickHandle.touching {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+#shootButton {
+    position: fixed;
+    bottom: 20px;
+    right: 120px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 0, 0, 0.5);
+    border-radius: 50%;
+    display: none;
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    user-select: none;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+#shootButton:active {
+    transform: scale(0.95);
+    background: rgba(255, 0, 0, 0.7);
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    #ui {
+        transform: scale(0.55);
+        left: 3px;
+        top: 3px;
+        right: auto;
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    #instructions {
+        display: block;
+        transform: scale(0.55);
+        right: 3px;
+        top: 3px;
+        left: auto;
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    #minimap {
+        width: 100px;
+        height: 75px;
+        bottom: 85px;
+        right: 8px;
+        border-radius: 8px;
+    }
+
+    .health-bar {
+        height: 4px;
+    }
+
+    #gameOver {
+        width: 95%;
+        max-width: 300px;
+        padding: 15px;
+    }
+}
+
+/* Portrait Mode Adjustments */
+@media (orientation: portrait) and (max-width: 768px) {
+    #ui {
+        transform: scale(0.55);
+        left: 3px;
+        top: 3px;
+        right: auto;
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    #instructions {
+        display: block;
+        transform: scale(0.55);
+        right: 3px;
+        top: 3px;
+        left: auto;
+        font-size: 11px;
+        padding: 8px;
+    }
+}
+
+/* Prevent text selection and touch callout on mobile */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Add touch feedback */
+@media (hover: none) {
+    #shootButton:active,
+    #joystickContainer:active {
+        opacity: 0.8;
+    }
+}
+
+/* Optimize for different screen orientations */
+@media (orientation: landscape) and (max-height: 500px) {
+    #ui {
+        transform: scale(0.7);
+        top: 5px;
+        right: 5px;
+    }
+
+    #minimap {
+        width: 120px;
+        height: 90px;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    #joystickContainer {
+        width: 100px;
+        height: 100px;
+        bottom: 10px;
+        left: 10px;
+    }
+
+    #joystickHandle {
+        width: 40px;
+        height: 40px;
+    }
+
+    #shootButton {
+        width: 50px;
+        height: 50px;
+        bottom: 10px;
+        right: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Add touch area indicator */
+#joystickContainer::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: expand 2s infinite;
+}
+
+@keyframes expand {
+    0% {
+        width: 2px;
+        height: 2px;
+        opacity: 0.5;
+    }
+    100% {
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+    }
 } 

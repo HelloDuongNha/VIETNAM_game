@@ -1,0 +1,51 @@
+.joystick-container {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    user-select: none;
+    touch-action: none;
+}
+
+.joystick-base {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    position: relative;
+    cursor: grab;
+}
+
+.joystick-base:active {
+    cursor: grabbing;
+}
+
+.joystick-stick {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease-out;
+}
+
+/* Hide joystick on desktop */
+@media (min-width: 1024px) {
+    .joystick-container {
+        display: none;
+    }
+} 

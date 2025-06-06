@@ -20,6 +20,9 @@ const keys = {
     space: false
 };
 
+// Add joystick instance
+let joystick;
+
 // Initialize the game
 function init() {
     // Hide loading screen after a delay
@@ -111,6 +114,9 @@ function init() {
         }
     });
     
+    // Initialize joystick
+    joystick = new Joystick();
+    
     // Start game loop
     animate();
 }
@@ -161,12 +167,20 @@ function handleInput() {
     let isMoving = false;
     let currentSpeed = 0;
     
+    // Get joystick values
+    const joystickValues = joystick.getValues();
+    
     // Handle braking
     if (keys.space) {
         gameState.speed *= 0.95;
     }
     
-    if (keys.w || keys.up) {
+    // Use joystick for movement if it's being used
+    if (Math.abs(joystickValues.y) > 0.1) {
+        gameState.speed = Math.min(moveSpeed, gameState.speed - joystickValues.y * 0.01);
+        currentSpeed = Math.abs(gameState.speed);
+        isMoving = true;
+    } else if (keys.w || keys.up) {
         gameState.speed = Math.min(moveSpeed, gameState.speed + 0.01);
         currentSpeed = gameState.speed;
         isMoving = true;
@@ -175,6 +189,21 @@ function handleInput() {
         gameState.speed = Math.max(-moveSpeed * 0.6, gameState.speed - 0.01);
         currentSpeed = Math.abs(gameState.speed);
         isMoving = true;
+    }
+    
+    // Use joystick for rotation if it's being used
+    if (Math.abs(joystickValues.x) > 0.1) {
+        // Đảo ngược giá trị x để kéo trái là rẽ trái, kéo phải là rẽ phải
+        tank.rotation.y -= rotateSpeed * joystickValues.x * 0.25;
+    } else {
+        // Handle keyboard rotation
+        const steerMultiplier = Math.max(0.3, Math.abs(gameState.speed) * 5);
+        if (keys.a || keys.left) {
+            tank.rotation.y += rotateSpeed * steerMultiplier;
+        }
+        if (keys.d || keys.right) {
+            tank.rotation.y -= rotateSpeed * steerMultiplier;
+        }
     }
     
     // Calculate next position (reversed direction)
@@ -290,15 +319,6 @@ function handleInput() {
                 gameState.score += Math.floor(gameState.speed * 10);
             }
         }
-    }
-    
-    // Handle steering (reduced when not moving)
-    const steerMultiplier = Math.max(0.3, Math.abs(gameState.speed) * 5);
-    if (keys.a || keys.left) {
-        tank.rotation.y += rotateSpeed * steerMultiplier;
-    }
-    if (keys.d || keys.right) {
-        tank.rotation.y -= rotateSpeed * steerMultiplier;
     }
     
     // Apply friction
@@ -451,78 +471,80 @@ function updateAnimations() {
 function createSoldier() {
     const soldier = new THREE.Group();
     
-    // Create soldier body (yellow uniform with red stripes)
-    const bodyGeometry = new THREE.BoxGeometry(1, 2, 0.5);
-    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700 }); // Yellow
+    // Create soldier body (tiger stripe pattern)
+    const bodyGeometry = new THREE.BoxGeometry(0.5, 1.8, 0.5);
+    const bodyMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x4B5320, // Olive drab base color
+        map: createTigerStripeTexture()
+    });
     const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 1;
+    body.position.y = 0.9;
     soldier.add(body);
-    
-    // Add red stripes to uniform
-    const stripeGeometry = new THREE.BoxGeometry(1.1, 0.2, 0.6);
-    const stripeMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 }); // Red
-    
-    const stripe1 = new THREE.Mesh(stripeGeometry, stripeMaterial);
-    stripe1.position.set(0, 1.5, 0);
-    soldier.add(stripe1);
-    
-    const stripe2 = new THREE.Mesh(stripeGeometry, stripeMaterial);
-    stripe2.position.set(0, 1, 0);
-    soldier.add(stripe2);
-    
-    const stripe3 = new THREE.Mesh(stripeGeometry, stripeMaterial);
-    stripe3.position.set(0, 0.5, 0);
-    soldier.add(stripe3);
-    
-    // Create soldier head
-    const headGeometry = new THREE.SphereGeometry(0.4, 16, 16);
+
+    // Create soldier head (unchanged)
+    const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
     const headMaterial = new THREE.MeshPhongMaterial({ color: 0xffdbac });
     const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 2.2;
+    head.position.y = 1.9;
     soldier.add(head);
     
-    // Create soldier arms
-    const armGeometry = new THREE.BoxGeometry(0.3, 1.2, 0.3);
-    const armMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700 }); // Yellow
-    
+    // Create helmet (Dark Green)
+    const helmetGeometry = new THREE.SphereGeometry(0.3, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+    const helmetMaterial = new THREE.MeshPhongMaterial({ color: 0x006400 });
+    const helmet = new THREE.Mesh(helmetGeometry, helmetMaterial);
+    helmet.position.y = 2.05;
+    helmet.rotation.x = Math.PI;
+    soldier.add(helmet);
+
+    // Create soldier arms (tiger stripe pattern)
+    const armGeometry = new THREE.BoxGeometry(0.2, 0.8, 0.2);
+    const armMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x4B5320,
+        map: createTigerStripeTexture()
+    });
+
     const leftArm = new THREE.Mesh(armGeometry, armMaterial);
-    leftArm.position.set(-0.65, 1.2, 0);
+    leftArm.position.set(-0.35, 1.3, 0);
     soldier.add(leftArm);
-    
+
     const rightArm = new THREE.Mesh(armGeometry, armMaterial);
-    rightArm.position.set(0.65, 1.2, 0);
+    rightArm.position.set(0.35, 1.3, 0);
     soldier.add(rightArm);
-    
-    // Create soldier legs
-    const legGeometry = new THREE.BoxGeometry(0.4, 1.2, 0.4);
-    const legMaterial = new THREE.MeshPhongMaterial({ color: 0xffd700 }); // Yellow
-    
+
+    // Create soldier legs (tiger stripe pattern)
+    const legGeometry = new THREE.BoxGeometry(0.25, 0.9, 0.25);
+    const legMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x4B5320,
+        map: createTigerStripeTexture()
+    });
+
     const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-    leftLeg.position.set(-0.3, 0, 0);
+    leftLeg.position.set(-0.15, 0.45, 0);
     soldier.add(leftLeg);
-    
+
     const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-    rightLeg.position.set(0.3, 0, 0);
+    rightLeg.position.set(0.15, 0.45, 0);
     soldier.add(rightLeg);
     
     // Create gun
     const gunGroup = new THREE.Group();
     
     // Gun body
-    const gunBodyGeometry = new THREE.BoxGeometry(0.1, 0.1, 1);
-    const gunBodyMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 }); // Dark gray
+    const gunBodyGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.5);
+    const gunBodyMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 });
     const gunBody = new THREE.Mesh(gunBodyGeometry, gunBodyMaterial);
-    gunBody.position.set(0.8, 1.2, 0);
-    gunBody.rotation.z = Math.PI / 6; // Slight upward angle
+    gunBody.position.set(0, 0, 0.25);
     gunGroup.add(gunBody);
     
     // Gun handle
-    const gunHandleGeometry = new THREE.BoxGeometry(0.1, 0.2, 0.1);
-    const gunHandleMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 }); // Brown
+    const gunHandleGeometry = new THREE.BoxGeometry(0.05, 0.1, 0.05);
+    const gunHandleMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 });
     const gunHandle = new THREE.Mesh(gunHandleGeometry, gunHandleMaterial);
-    gunHandle.position.set(0.8, 1.1, 0);
+    gunHandle.position.set(0, -0.05, 0.2);
     gunGroup.add(gunHandle);
-    
+
+    gunGroup.position.set(0.2, 1.3, 0.1);
+    gunGroup.rotation.z = Math.PI / 6;
     soldier.add(gunGroup);
     
     // Set random position
@@ -543,6 +565,39 @@ function createSoldier() {
         gameState.soldiers = [];
     }
     gameState.soldiers.push(soldier);
+}
+
+// Helper function to create tiger stripe texture
+function createTigerStripeTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Base color (olive drab)
+    ctx.fillStyle = '#4B5320';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw tiger stripes
+    ctx.fillStyle = '#2F4F4F'; // Darker green for stripes
+    for (let i = 0; i < 20; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const width = 20 + Math.random() * 40;
+        const height = 10 + Math.random() * 30;
+        const angle = Math.random() * Math.PI * 2;
+        
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillRect(-width/2, -height/2, width, height);
+        ctx.restore();
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    return texture;
 }
 
 function createVietnameseSoldier() {
@@ -569,34 +624,34 @@ function createVietnameseSoldier() {
     head.position.y = 2.2;
     soldier.add(head);
     
-    // Create helmet
+    // Create helmet (Dark Green)
     const helmetGeometry = new THREE.SphereGeometry(0.45, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
     const helmetMaterial = new THREE.MeshPhongMaterial({ color: 0x006400 }); // Dark green
     const helmet = new THREE.Mesh(helmetGeometry, helmetMaterial);
-    helmet.position.y = 2.4;
-    helmet.rotation.x = Math.PI;
+    helmet.position.y = 2.4; // Position slightly above head
+    helmet.rotation.x = Math.PI; // Rotate to cover top of head
     soldier.add(helmet);
     
-    // Create soldier arms
+    // Create soldier arms (red)
     const armGeometry = new THREE.BoxGeometry(0.3, 1.2, 0.3);
     const armMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 }); // Red
     
     const leftArm = new THREE.Mesh(armGeometry, armMaterial);
     leftArm.position.set(-0.65, 1.2, 0);
     soldier.add(leftArm);
-    
+
     const rightArm = new THREE.Mesh(armGeometry, armMaterial);
     rightArm.position.set(0.65, 1.2, 0);
     soldier.add(rightArm);
     
-    // Create soldier legs
+    // Create soldier legs (red)
     const legGeometry = new THREE.BoxGeometry(0.4, 1.2, 0.4);
     const legMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 }); // Red
     
     const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
     leftLeg.position.set(-0.3, 0, 0);
     soldier.add(leftLeg);
-    
+
     const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
     rightLeg.position.set(0.3, 0, 0);
     soldier.add(rightLeg);
@@ -608,17 +663,18 @@ function createVietnameseSoldier() {
     const gunBodyGeometry = new THREE.BoxGeometry(0.1, 0.1, 1);
     const gunBodyMaterial = new THREE.MeshPhongMaterial({ color: 0x333333 }); // Dark gray
     const gunBody = new THREE.Mesh(gunBodyGeometry, gunBodyMaterial);
-    gunBody.position.set(0.8, 1.2, 0);
-    gunBody.rotation.z = Math.PI / 6; // Slight upward angle
+    gunBody.position.set(0, 0, 0.5); // Position relative to gunGroup center
     gunGroup.add(gunBody);
     
     // Gun handle
     const gunHandleGeometry = new THREE.BoxGeometry(0.1, 0.2, 0.1);
     const gunHandleMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513 }); // Brown
     const gunHandle = new THREE.Mesh(gunHandleGeometry, gunHandleMaterial);
-    gunHandle.position.set(0.8, 1.1, 0);
+    gunHandle.position.set(0, -0.1, 0.4); // Position relative to gunGroup center
     gunGroup.add(gunHandle);
-    
+
+    gunGroup.position.set(0.4, 1.2, 0.3); // Position gun group relative to soldier body
+    gunGroup.rotation.z = Math.PI / 6; // Slight upward angle
     soldier.add(gunGroup);
     
     // Add Vietnamese flag for the first soldier

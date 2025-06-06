@@ -240,36 +240,53 @@ function createEnhancedTargetGate() {
     arch.castShadow = true;
     gateGroup.add(arch);
     
-    // Create yellow flag with red stripes
-    const flagGeometry = new THREE.BoxGeometry(24, 2.4, 0.3);
-    const yellowMaterial = new THREE.MeshLambertMaterial({ 
-        color: 0xFFFF00,
-        emissive: 0x444400
+    // Create white frame
+    const frameMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFFFF }); // White
+
+    // Top bar
+    const frameTopGeometry = new THREE.BoxGeometry(25, 0.5, 0.5);
+    const frameTop = new THREE.Mesh(frameTopGeometry, frameMaterial);
+    frameTop.position.set(0, 19.5, 3.6);
+    gateGroup.add(frameTop);
+
+    // Bottom bar
+    const frameBottomGeometry = new THREE.BoxGeometry(25, 0.5, 0.5);
+    const frameBottom = new THREE.Mesh(frameBottomGeometry, frameMaterial);
+    frameBottom.position.set(0, 16.5, 3.6);
+    gateGroup.add(frameBottom);
+
+    // Left bar
+    const frameLeftGeometry = new THREE.BoxGeometry(0.5, 3, 0.5);
+    const frameLeft = new THREE.Mesh(frameLeftGeometry, frameMaterial);
+    frameLeft.position.set(-12.25, 18, 3.6);
+    gateGroup.add(frameLeft);
+
+    // Right bar
+    const frameRightGeometry = new THREE.BoxGeometry(0.5, 3, 0.5);
+    const frameRight = new THREE.Mesh(frameRightGeometry, frameMaterial);
+    frameRight.position.set(12.25, 18, 3.6);
+    gateGroup.add(frameRight);
+
+    // Add "Dinh Norodom" text
+    const fontLoader = new THREE.FontLoader();
+    fontLoader.load( 'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+        const textGeometry = new THREE.TextGeometry( 'Dinh Norodom', {
+            font: font,
+            size: 1.5,
+            height: 0.2,
+            curveSegments: 12,
+        });
+        textGeometry.computeBoundingBox();
+        const textMaterial = new THREE.MeshPhongMaterial( { color: 0x000000 } ); // Black
+        const textMesh = new THREE.Mesh( textGeometry, textMaterial );
+        
+        // Center text
+        textMesh.position.x = -0.5 * ( textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x );
+        textMesh.position.y = 17.5;
+        textMesh.position.z = 3.8;
+        
+        gateGroup.add( textMesh );
     });
-    const flag = new THREE.Mesh(flagGeometry, yellowMaterial);
-    flag.position.y = 18;
-    flag.position.z = 3.6;
-    gateGroup.add(flag);
-
-    // Create three thin red stripes
-    const stripeGeometry = new THREE.BoxGeometry(24, 0.2, 0.31);
-    const redMaterial = new THREE.MeshLambertMaterial({ 
-        color: 0xFF0000,
-        emissive: 0x330000
-    });
-
-    // Create and position three stripes
-    const stripe1 = new THREE.Mesh(stripeGeometry, redMaterial);
-    stripe1.position.set(0, 18.6, 3.61);
-    gateGroup.add(stripe1);
-
-    const stripe2 = new THREE.Mesh(stripeGeometry, redMaterial);
-    stripe2.position.set(0, 18, 3.61);
-    gateGroup.add(stripe2);
-
-    const stripe3 = new THREE.Mesh(stripeGeometry, redMaterial);
-    stripe3.position.set(0, 17.4, 3.61);
-    gateGroup.add(stripe3);
     
     // Gate lights
     for (let i = 0; i < 4; i++) {
