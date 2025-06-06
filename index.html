@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Lái Xe Tăng 3D - Dinh Độc Lập</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="loading" id="loading">🚀 Đang tải game...</div>
+        
+        <div id="ui" style="display: none;">
+            <div>🛡️ Sức khỏe: <span id="health">100</span>%</div>
+            <div class="health-bar">
+                <div class="health-fill" id="healthBar" style="width: 100%"></div>
+            </div>
+            <div>⭐ Điểm: <span id="score">0</span></div>
+            <div>🎯 Mục tiêu: Tông vào cổng Dinh Độc Lập!</div>
+            <div>📍 Khoảng cách: <span id="distance">0</span>m</div>
+            <div>🚀 Tốc độ: <span id="speed">0</span> km/h</div>
+            <div>🎯 Tọa độ: X: <span id="tankX">0</span> | Y: <span id="tankY">0</span> | Z: <span id="tankZ">0</span></div>
+        </div>
+        
+        <div id="instructions" style="display: none;">
+            <div>🕹️ <strong>Điều khiển:</strong></div>
+            <div>⬆️ W/↑: Tiến</div>
+            <div>⬇️ S/↓: Lùi</div>
+            <div>⬅️ A/←: Rẽ trái</div>
+            <div>➡️ D/→: Rẽ phải</div>
+            <div>🚫 Space: Phanh</div>
+            <div style="margin-top: 10px;">⚠️ <strong>Lưu ý:</strong></div>
+            <div>🔴 Né chướng ngại vật đỏ!</div>
+            <div>🛣️ Đi theo đường mòn vàng</div>
+            <div>🎯 Đến cổng Dinh Độc Lập!</div>
+        </div>
+        
+        <div id="gameOver">
+            <h2 id="gameResult">Game Over</h2>
+            <p id="gameMessage">Thử lại lần nữa!</p>
+            <div style="margin: 20px 0;">
+                <div>🏆 Điểm cao nhất: <span id="highScore">0</span></div>
+            </div>
+            <button id="restartBtn">🔄 Chơi lại</button>
+        </div>
+        
+        <canvas id="minimap"></canvas>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script>
+        // Global variables that need to be shared between files
+        window.gameState = {
+            health: 100,
+            maxHealth: 100,
+            score: 0,
+            speed: 0,
+            gameRunning: false,
+            startTime: 0
+        };
+        
+        window.scene = null;
+        window.camera = null;
+        window.renderer = null;
+        window.tank = null;
+        window.targetGate = null;
+        window.obstacles = [];
+        window.trees = [];
+        window.roadMarkers = [];
+        window.roadSegments = [];
+        window.roadPath = [
+            { x: -36, z: 50 },
+            { x: 0, z: 44 },
+            { x: 0, z: -93 }
+        ];
+    </script>
+    <script src="js/objects.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

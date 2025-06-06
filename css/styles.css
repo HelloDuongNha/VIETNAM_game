@@ -1,0 +1,129 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+}
+
+#gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#ui {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: white;
+    z-index: 100;
+    font-size: 18px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+#instructions {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    z-index: 100;
+    text-align: right;
+    font-size: 14px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.95);
+    color: white;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 200;
+    display: none;
+    border: 3px solid #ffd700;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+}
+
+#gameOver h2 {
+    color: #ffd700;
+    margin-bottom: 20px;
+    font-size: 32px;
+    text-shadow: 2px 2px 8px rgba(255, 215, 0, 0.5);
+}
+
+#restartBtn {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+#restartBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+}
+
+canvas {
+    display: block;
+}
+
+#minimap {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 200px;
+    height: 150px;
+    background: rgba(0,0,0,0.8);
+    border: 3px solid #fff;
+    border-radius: 15px;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    z-index: 300;
+}
+
+.health-bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,0,0,0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+} 
